@@ -1,11 +1,26 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 
 if __name__ == "__main__":
+    
+    df = pd.read_csv("team_stats.csv")
+    
+    ##x = df[['R','HR','RBI','SB','OBP','SLG']]
+    x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
+    x = x.fillna(0)
+    x = x.groupby('YEAR').transform(lambda x: (x - x.mean()) / x.std())
+    x = x.fillna(0)
+    print(x)
+
+    x.to_csv("team_adjusted_stats.csv")
+    x = x.to_numpy()
+    
+    y = df['Pts'].to_numpy()
 
     # Create a pipeline with PolynomialFeatures and LinearRegression
     pipeline = Pipeline([
@@ -30,12 +45,27 @@ if __name__ == "__main__":
     best_alpha = grid_search.best_params_['regression__alpha']
 
     # Transform the data using the best degree
-    x_poly = PolynomialFeatures(degree=best_degree, include_bias=True).transform(x)
-
-    # Train the Ridge regression model using the best alpha
+    x_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(x)
     ridge_model = Ridge(alpha=best_alpha)
     ridge_model.fit(x_poly, y)
-
+    
     # Make predictions on player stats using the trained model
-    player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).transform(player_stats)
+    df_players = pd.read_csv("players.csv")
+    plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
+    plyrs = plyrs.fillna(0)
+    plyrs = (plyrs - plyrs.mean()) / plyrs.std()
+    print(plyrs)
+    plyrs = plyrs.fillna(0)
+    player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
+    
     preds = ridge_model.predict(player_poly)
+    print(ridge_model.coef_)
+    play_pred = pd.DataFrame()
+    play_pred['Name'] = df_players['Name']
+    play_pred['Scores'] = preds
+    play_pred = play_pred.sort_values('Scores',ascending=False)
+    print(play_pred)
+    play_pred.to_csv('predictions.csv')
+    
+    
+    
