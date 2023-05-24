@@ -13,22 +13,14 @@ if __name__ == "__main__":
     ##x = df[['R','HR','RBI','SB','OBP','SLG']]
     x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
     x = x.fillna(0)
-    Mean = x.groupby(['YEAR']).mean()
-    print(Mean)
-    stdDev = x.groupby(['YEAR']).std()
-    print(stdDev)
-    years = x.YEAR
-    x.drop(['YEAR'],axis=1,inplace=True)
-    # HR_mean = x.groupby(['YEAR']).HR.mean()
-    # RBI_Mean = x.groupby(['YEAR']).RBI.mean()
-    # SB_Mean = x.groupby(['YEAR']).SB.mean()
-    # OBP_Mean = x.groupby(['YEAR']).OBP.mean()
-    # SLG_Mean = x.groupby(['YEAR']).SLG.mean()
-    
-    
-    x = (x-Mean)/stdDev
+    x = x.groupby('YEAR').transform(lambda x: (x - x.mean()) / x.std())
+    x = x.fillna(0)
+    print(x)
+    #years = x.YEAR
+    #x.drop(['YEAR'],axis=1,inplace=True)
     x.to_csv("team_adjusted_stats.csv")
     x = x.to_numpy()
+    
     y = df['Pts'].to_numpy()
 
     # Create a pipeline with PolynomialFeatures and LinearRegression
@@ -55,16 +47,22 @@ if __name__ == "__main__":
 
     # Transform the data using the best degree
     x_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(x)
-
-    # Train the Ridge regression model using the best alpha
     ridge_model = Ridge(alpha=best_alpha)
     ridge_model.fit(x_poly, y)
-
-    # Make predictions on player stats using the trained model
-    df_players = pd.read_csv("team_stats.csv")
     
+    # Make predictions on player stats using the trained model
+    df_players = pd.read_csv("players.csv")
     plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
-    plyrs.fillna(0)
-    player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).transform(plyrs)
+    plyrs = plyrs.fillna(0)
+    player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
+    
     preds = ridge_model.predict(player_poly)
-    print(preds)
+    
+    play_pred = pd.DataFrame()
+    play_pred['Name'] = df_players['Name']
+    play_pred['Scores'] = preds
+    play_pred = play_pred.sort_values('Scores',ascending=False)
+    print(play_pred)
+    
+    
+    
