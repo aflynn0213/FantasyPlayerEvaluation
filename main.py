@@ -59,7 +59,7 @@ if __name__ == "__main__":
     player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
     
     preds = ridge_model.predict(player_poly)
-    
+    print(ridge_model.coef_)
     play_pred = pd.DataFrame()
     play_pred['Name'] = df_players['Name']
     play_pred['Scores'] = preds
