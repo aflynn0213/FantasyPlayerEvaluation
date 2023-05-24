@@ -51,7 +51,7 @@ if __name__ == "__main__":
     
     # Make predictions on player stats using the trained model
     df_players = pd.read_csv("players.csv")
-    plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
+    plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB']]
     plyrs = plyrs.fillna(0)
     plyrs = (plyrs - plyrs.mean()) / plyrs.std()
     print(plyrs)
