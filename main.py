@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 
 if __name__ == "__main__":
     
-    df = pd.read_csv("team_stats.csv")
+    df = pd.read_excel("team_stats.xlsx")
     
     ##x = df[['R','HR','RBI','SB','OBP','SLG']]
     x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
@@ -50,8 +50,8 @@ if __name__ == "__main__":
     ridge_model.fit(x_poly, y)
     
     # Make predictions on player stats using the trained model
-    df_players = pd.read_csv("players.csv")
-    plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB']]
+    df_players = pd.read_excel("players.xlsx")
+    plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','SO','QS','SV+H','ERA','WHIP','K/BB','L']]
     plyrs = plyrs.fillna(0)
     plyrs = (plyrs - plyrs.mean()) / plyrs.std()
     print(plyrs)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     play_pred['Scores'] = preds
     play_pred = play_pred.sort_values('Scores',ascending=False)
     print(play_pred)
-    play_pred.to_csv('predictions.csv')
+    play_pred.to_excel('predictions.xlsx')
     
     
     
