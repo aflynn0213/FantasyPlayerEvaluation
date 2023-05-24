@@ -16,8 +16,7 @@ if __name__ == "__main__":
     x = x.groupby('YEAR').transform(lambda x: (x - x.mean()) / x.std())
     x = x.fillna(0)
     print(x)
-    #years = x.YEAR
-    #x.drop(['YEAR'],axis=1,inplace=True)
+
     x.to_csv("team_adjusted_stats.csv")
     x = x.to_numpy()
     
@@ -54,6 +53,9 @@ if __name__ == "__main__":
     df_players = pd.read_csv("players.csv")
     plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
     plyrs = plyrs.fillna(0)
+    plyrs = (plyrs - plyrs.mean()) / plyrs.std()
+    print(plyrs)
+    plyrs = plyrs.fillna(0)
     player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
     
     preds = ridge_model.predict(player_poly)
@@ -63,6 +65,7 @@ if __name__ == "__main__":
     play_pred['Scores'] = preds
     play_pred = play_pred.sort_values('Scores',ascending=False)
     print(play_pred)
+    play_pred.to_csv('predictions.csv')
     
     
     
