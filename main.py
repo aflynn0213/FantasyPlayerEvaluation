@@ -52,7 +52,6 @@ if __name__ == "__main__":
     # Make predictions on player stats using the trained model
     df_players = pd.read_excel("players.xlsx")
     plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','SO','QS','SV+H','ERA','WHIP','K/BB','L']]
-    plyrs = plyrs.fillna(0)
     plyrs = (plyrs - plyrs.mean()) / plyrs.std()
     print(plyrs)
     plyrs = plyrs.fillna(0)
