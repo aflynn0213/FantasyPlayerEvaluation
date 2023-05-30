@@ -32,6 +32,7 @@ if __name__ == "__main__":
     # Define the parameter grid for the polynomial degree and alpha (regularization strength)
     param_grid = {
         'poly__degree': [1,2,3,4],  # Specify the degrees to try
+        'poly__interaction_only': [True,False],
         'regression__alpha': [.001,.01, .1, .25, 1.0, 2.5, 5,10.0,20,25]  # Specify the values of alpha to try
     }
 
@@ -48,10 +49,13 @@ if __name__ == "__main__":
     # Get the best degree and alpha found by the grid search
     best_degree = grid_search.best_params_['poly__degree']
     best_alpha = grid_search.best_params_['regression__alpha']
+    best_interaction = grid_search.best_params_['poly__interaction_only']
     print("best degree: ",best_degree)
     print("best alpha: ",best_alpha)
+    print("best interaction: ",best_interaction)
+
     # Transform the data using the best degree
-    x_poly = PolynomialFeatures(degree=best_degree, interaction_only=True, include_bias=True).fit_transform(x)
+    x_poly = PolynomialFeatures(degree=best_degree, interaction_only=best_interaction, include_bias=True).fit_transform(x)
     ridge_model = Ridge(alpha=best_alpha)
     ridge_model.fit(x_poly, y)
     
@@ -65,7 +69,7 @@ if __name__ == "__main__":
     
     
     plyrs = plyrs.fillna(0)
-    player_poly = PolynomialFeatures(degree=best_degree, interaction_only=True, include_bias=True).fit_transform(plyrs)
+    player_poly = PolynomialFeatures(degree=best_degree, interaction_only=best_interaction, include_bias=True).fit_transform(plyrs)
     
     preds = ridge_model.predict(player_poly)
     print(ridge_model.coef_)
