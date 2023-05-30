@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Create a pipeline with PolynomialFeatures and LinearRegression
     pipeline = Pipeline([
-        ('poly', PolynomialFeatures(include_bias=True)),
+        ('poly', PolynomialFeatures(interaction_only=True,include_bias=True)),
         ('regression', Ridge())
     ])
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print("best degree: ",best_degree)
     print("best alpha: ",best_alpha)
     # Transform the data using the best degree
-    x_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(x)
+    x_poly = PolynomialFeatures(degree=best_degree, interaction_only=True, include_bias=True).fit_transform(x)
     ridge_model = Ridge(alpha=best_alpha)
     ridge_model.fit(x_poly, y)
     
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     
     
     plyrs = plyrs.fillna(0)
-    player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
+    player_poly = PolynomialFeatures(degree=best_degree, interaction_only=True, include_bias=True).fit_transform(plyrs)
     
     preds = ridge_model.predict(player_poly)
     print(ridge_model.coef_)
