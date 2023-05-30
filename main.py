@@ -5,6 +5,7 @@ from sklearn.linear_model import Ridge
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import make_scorer,mean_squared_error
 
 if __name__ == "__main__":
     
@@ -30,20 +31,25 @@ if __name__ == "__main__":
 
     # Define the parameter grid for the polynomial degree and alpha (regularization strength)
     param_grid = {
-        'poly__degree': [1, 2, 3],  # Specify the degrees to try
-        'regression__alpha': [.001,.01, .1, .25, 1.0, 2.5, 10.0]  # Specify the values of alpha to try
+        'poly__degree': [1,2,3,4],  # Specify the degrees to try
+        'regression__alpha': [.001,.01, .1, .25, 1.0, 2.5, 5,10.0,20,25]  # Specify the values of alpha to try
     }
 
+    scoring = make_scorer(mean_squared_error, greater_is_better=False)
     # Create the GridSearchCV object
-    grid_search = GridSearchCV(pipeline, param_grid, cv=5)
+    grid_search = GridSearchCV(pipeline, param_grid,scoring=scoring, cv=5)
 
     # Fit the GridSearchCV on your data
     grid_search.fit(x, y)
-
+    print(grid_search.scorer_)
+    cvresults= pd.DataFrame(grid_search.cv_results_)
+    cvresults.to_csv('cv_results.csv')
+    
     # Get the best degree and alpha found by the grid search
     best_degree = grid_search.best_params_['poly__degree']
     best_alpha = grid_search.best_params_['regression__alpha']
-
+    print("best degree: ",best_degree)
+    print("best alpha: ",best_alpha)
     # Transform the data using the best degree
     x_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(x)
     ridge_model = Ridge(alpha=best_alpha)
@@ -52,8 +58,12 @@ if __name__ == "__main__":
     # Make predictions on player stats using the trained model
     df_players = pd.read_excel("players.xlsx")
     plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','SO','QS_1','SV+H','ERA','WHIP','K/BB','L']]
+    print(plyrs.mean())
+    print(plyrs.std())
+    
     plyrs = (plyrs - plyrs.mean()) / plyrs.std()
-    print(plyrs)
+    
+    
     plyrs = plyrs.fillna(0)
     player_poly = PolynomialFeatures(degree=best_degree, include_bias=True).fit_transform(plyrs)
     
@@ -65,6 +75,4 @@ if __name__ == "__main__":
     play_pred = play_pred.sort_values('Scores',ascending=False)
     print(play_pred)
     play_pred.to_excel('predictions.xlsx')
-    
-    
     
