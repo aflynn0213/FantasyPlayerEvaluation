@@ -12,7 +12,7 @@ if __name__ == "__main__":
     df = pd.read_excel("team_stats.xlsx")
     
     ##x = df[['R','HR','RBI','SB','OBP','SLG']]
-    x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L
+    x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
     #Put zeros in for the years where the stats weren't valid, the model should be able to handle
     #learning new stats even if they were previously zero'd out
     x = x.fillna(0)
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     param_grid = {
         'poly__degree': [1,2,3,4],  # Specify the degrees to try
         'poly__interaction_only': [True,False],
-        'regression__alpha': [.001,.01, .1, .25, 1.0, 2.5, 5,10.0,20,25]  # Specify the values of alpha to try
+        'ridge__alpha': [.001,.01, .1, .25, 1.0, 2.5, 5,10.0,20,25]  # Specify the values of alpha to try
     }
 
     #Default scoring was an accuracy measurement we want to use MSE
