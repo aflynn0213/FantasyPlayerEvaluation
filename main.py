@@ -12,21 +12,24 @@ if __name__ == "__main__":
     df = pd.read_excel("team_stats.xlsx")
     
     ##x = df[['R','HR','RBI','SB','OBP','SLG']]
-    x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L']]
+    x = df[['YEAR','R','HR','RBI','SB','OBP','SLG','K','QS','SV','ERA','WHIP','K/BB','L
+    #Put zeros in for the years where the stats weren't valid, the model should be able to handle
+    #learning new stats even if they were previously zero'd out
     x = x.fillna(0)
     x = x.groupby('YEAR').transform(lambda x: (x - x.mean()) / x.std())
+    #This gets rid of nan's
     x = x.fillna(0)
     print(x)
-
+    #Write z score adjusted team stats to csv for monitoring
     x.to_csv("team_adjusted_stats.csv")
     x = x.to_numpy()
     
     y = df['Pts'].to_numpy()
 
-    # Create a pipeline with PolynomialFeatures and LinearRegression
+    # Pipeline using PolynomialFeatures and Ridge Regression for deployment in GridSearchCV
     pipeline = Pipeline([
-        ('poly', PolynomialFeatures(interaction_only=True,include_bias=True)),
-        ('regression', Ridge())
+        ('poly', PolynomialFeatures(include_bias=True)),
+        ('ridge', Ridge())
     ])
 
     # Define the parameter grid for the polynomial degree and alpha (regularization strength)
@@ -36,43 +39,49 @@ if __name__ == "__main__":
         'regression__alpha': [.001,.01, .1, .25, 1.0, 2.5, 5,10.0,20,25]  # Specify the values of alpha to try
     }
 
+    #Default scoring was an accuracy measurement we want to use MSE
     scoring = make_scorer(mean_squared_error, greater_is_better=False)
-    # Create the GridSearchCV object
-    grid_search = GridSearchCV(pipeline, param_grid,scoring=scoring, cv=5)
 
-    # Fit the GridSearchCV on your data
+    # GridSearchCV object
+    grid_search = GridSearchCV(pipeline, param_grid,scoring=scoring, cv=5)
+    # GridSearchCV fit runs the gridsearch algorithm
     grid_search.fit(x, y)
-    print(grid_search.scorer_)
+
+    #Debug purposes writing results from folds for each combo to csv
     cvresults= pd.DataFrame(grid_search.cv_results_)
     cvresults.to_csv('cv_results.csv')
     
-    # Get the best degree and alpha found by the grid search
-    best_degree = grid_search.best_params_['poly__degree']
-    best_alpha = grid_search.best_params_['regression__alpha']
-    best_interaction = grid_search.best_params_['poly__interaction_only']
-    print("best degree: ",best_degree)
-    print("best alpha: ",best_alpha)
-    print("best interaction: ",best_interaction)
+    # Best hyperparamters found by the grid search
+    print("best params: ", grid_search.best_params_)
 
-    # Transform the data using the best degree
-    x_poly = PolynomialFeatures(degree=best_degree, interaction_only=best_interaction, include_bias=True).fit_transform(x)
-    ridge_model = Ridge(alpha=best_alpha)
+    # Best estimator which is a pipeline type from the grid search object
+    #Followed by the specific steps of the pipeline
+    best_estimator = grid_search.best_estimator_
+    poly = best_estimator.named_steps['poly']
+    ridge_model = best_estimator.named_steps['ridge']
+
+    # Transforms the team data using the best estimator and fits to team wins
+    x_poly = poly.transform(x)
     ridge_model.fit(x_poly, y)
     
-    # Make predictions on player stats using the trained model
+    # Read in player stats
     df_players = pd.read_excel("players.xlsx")
     plyrs = df_players[['R','HR','RBI','SB','OBP','SLG','SO','QS_1','SV+H','ERA','WHIP','K/BB','L']]
+    #Debug statements
     print(plyrs.mean())
     print(plyrs.std())
-    
+    #For SP we leave Saves+Holds blank so they're not used in this calculation and the zeros don't bring down the mean
+    #Likewise with RP we leave QS blank so they don't get used in the calculation below and inflate the z scores for starting pitchers
+    #by bringing the mean for QS much lower than is reflective of the actual data
     plyrs = (plyrs - plyrs.mean()) / plyrs.std()
-    
-    
+    #Fill in Zeros now for the missing stats so that linear regression can use this in predictions (zeros have no affect)
     plyrs = plyrs.fillna(0)
-    player_poly = PolynomialFeatures(degree=best_degree, interaction_only=best_interaction, include_bias=True).fit_transform(plyrs)
-    
+    #Applies same transformation as was done to team stats but to players (test) data
+    player_poly = poly.transform(plyrs)
+    # Make predictions using the ridge model
     preds = ridge_model.predict(player_poly)
-    print(ridge_model.coef_)
+
+    # Create a DataFrame to store the predictions
     play_pred = pd.DataFrame()
     play_pred['Name'] = df_players['Name']
     play_pred['Scores'] = preds
