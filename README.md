@@ -1,8 +1,8 @@
 # FantasyPlayerEvaluation
 
-## Broken up into different projects each of which is described briefly below:
+This repository is broken up into different projects each of which is described briefly below:
 
-### LeagueHistoryLinearWeightsModel
+## LeagueHistoryLinearWeightsModel
 Contained within this directory is a main.py python script is designed for fantasy baseball analysis, particularly tailored to my Head-to-Head (H2H) Each Category scoring league.  The main execution block of the script revolves around leveraging historical league data, stored in an Excel file named "team_stats.xlsx," to predict team performance based on various statistical categories. The data preprocessing phase involves selecting relevant features and standardizing them using z-score normalization, essential for ensuring uniformity across different statistical metrics, such as runs, home runs, RBIs, rate stats (OBP, SLUG, ERA, etc.) and more. Through the utilization of machine learning techniques, particularly PolynomialFeatures and Ridge Regression, the script constructs a predictive model optimized for mean squared error. This model undergoes hyperparameter tuning via GridSearchCV to identify the optimal combination of parameters for accurate predictions. Subsequently, player projections from another Excel file are processed similarly, generating z-scores for each player's statistical categories. The model coefficients learned from the team data are then applied to these z-scored player statistics to predict team points based on the individual contributions of each player to their respective categories. Finally, the script outputs the predictions, along with z-scores of players, facilitating further analysis and decision-making in fantasy baseball management. This comprehensive approach not only provides insights into team performance prediction but also aids in strategic player selection and team optimization within the fantasy baseball framework.
 
 #### Data Preparation:
