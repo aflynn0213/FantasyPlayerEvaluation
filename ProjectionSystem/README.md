@@ -1,6 +1,6 @@
 # Deep Neural Network Projection System
 
-## Step 1: Player Performance Prediction with XGBoost
+## Step 1: Player wOBA within Same Season Prediction with XGBoost
 
 ### Objective
 This Python script aims to predict players' wOBA (weighted on-base average) using XGBoost, a gradient boosting algorithm. Leveraging same-season underlying player data, including BB%, K%, statcast data, batted ball metrics, and other plate discipline rates from the Fangraphs database, the model predicts players' wOBA for the given season based on the set of aforementioned features.
