@@ -14,9 +14,13 @@ Hyperparameters of the XGBoost model are tuned using RandomizedSearchCV, which s
 #### Model Evaluation:
 The trained model's performance is evaluated using various metrics, including R-squared score, Mean Absolute Percentage Error (MAPE), and Mean Squared Error (MSE), on the testing data.  The importance of features in predicting player performance is visualized using the plot_importance function.
 
+### How to Use
+- Ensure that the required Python libraries, including pandas, numpy, xgboost, scikit-learn, and matplotlib, are installed.
+- Place the player data CSV file named "fangraphs_stats.csv" in the same directory as the script.
+- Execute the script. It will preprocess the data, tune hyperparameters, train the XGBoost model, evaluate its performance, and visualize feature importance.
+
 ## Step 2: Player Performance Prediction with GRU Model
 This Python script aims to predict player performance using a GRU (Gated Recurrent Unit) model. The script leverages historical player data from a CSV file named "fangraphs_stats.csv" to train the model and make predictions.
-
 ### Objective
 The primary goal of this script is to predict player performance based on various statistical features, such as walk percentage (BB%), strikeout percentage (K%), and barrel percentage (Barrel%), among others. The predictions are made for each player's performance in the upcoming season.
 
@@ -25,39 +29,22 @@ The primary goal of this script is to predict player performance based on variou
 The script reads player data from the CSV file and preprocesses it. The data includes player names, seasons, ages, and various statistical features. For now, and as a proof of concept, only a subset of the overall features to be used are incorporated such as BB%, K%, and Barrel% are selected for modeling player performance.
 
 #### Sequence Generation:
-The player data is grouped by player name and sorted by season in ascending order. Sequences of statistical features are generated for each player.
-Sequences with less than three data points (seasons) are filtered out to ensure sufficient data for training.
-Sequences are padded using pad_sequences to ensure uniform length.
-Additional information, such as the last season's year and age of the player, is concatenated to each sequence.
-Model Training:
+The player data is grouped by player name and sorted by season in ascending order. Sequences of statistical features are generated for each player.  Sequences with less than three data points (seasons) are filtered out to ensure sufficient data for training.  Sequences are padded using pad_sequences to ensure uniform length.  Additional information, such as the last season's year and age of the player, is concatenated to each sequence since the outputs for training are going to be the metrics from the last season, but I still felt the year which it was occuring and the player's age were relevant and probably highly correlated features with the player's performance.
 
-A sequential model is constructed using TensorFlow's Keras API.
-The model architecture includes a GRU layer with 50 units followed by a Dense output layer.
-Mean squared error is used as the loss function, and the model is optimized using the Adam optimizer.
-Model Evaluation:
+#### Model Training:
+A sequential model is constructed using TensorFlow's Keras API.  The model architecture includes a GRU layer with 50 units followed by a Dense output layer.  Mean squared error is used as the loss function, and the model is optimized using the Adam optimizer.  The model is trained using the prepared sequences of player data, and training and validation losses are monitored to assess model performance.
 
-The model is trained using the prepared sequences of player data.
-Training and validation losses are monitored to assess model performance.
-Prediction:
-
+#### Prediction:
 Once the model is trained, it is used to predict player performance for the upcoming season.
 The prediction inputs are prepared similar to the training data, and predictions are made using the trained model.
-How to Use
+
+### How to Use
 To use this script for predicting player performance:
-
-Ensure that the required Python libraries, including TensorFlow and pandas, are installed.
-Place the player data CSV file named "fangraphs_stats.csv" in the same directory as the script.
-Execute the script. It will preprocess the data, train the GRU model, and make predictions for player performance.
-Note
-The provided script serves as a basic example of player performance prediction using a GRU model. Depending on the specific requirements and dataset characteristics, further customization and optimization may be necessary.
-
-## How to Use
-- Ensure that the required Python libraries, including pandas, numpy, xgboost, scikit-learn, and matplotlib, are installed.
+- Ensure that the required Python libraries, including TensorFlow and pandas, are installed.
 - Place the player data CSV file named "fangraphs_stats.csv" in the same directory as the script.
-- Execute the script. It will preprocess the data, tune hyperparameters, train the XGBoost model, evaluate its performance, and visualize feature importance.
-
-This README provides an overview of the script's functionality, its objectives, and instructions on how to use it. It also suggests an alternative approach to player performance prediction using a GRU model, which can be found in the provided GRU model script. Users can refer to this README to understand the purpose of the script and how to utilize it effectively for predicting player performance in fantasy baseball or similar domains
-
+- Execute the script. It will preprocess the data, train the GRU model, and make predictions for player performance.
+Note:
+The provided script serves as a basic example of player performance prediction using a GRU model. Depending on the specific requirements and dataset characteristics, further customization and optimization may be necessary.
 
 ### Coming Soon......
 The next steps would include leveraging the predicted underlying features for the next season found in step 2 with some known probability of error, and then leveraging these as inputs (along with associated confidence probabilities) into the trained model from step 1 to ultimately create a system given players' performances from prior years in regards to underlying (controllable) metrics such as plate discipline, batted ball data, statcast data, K%, and BB% to predict wOBA (accepted as the best non-park and non-league adjusted indicator of overall offensive performance) for an upcoming season for any given player.  
