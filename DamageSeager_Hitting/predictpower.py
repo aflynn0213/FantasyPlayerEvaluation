@@ -67,15 +67,15 @@ if __name__ == "__main__":
     coefficients = regress.coef_
 
     # Get the feature names
-    interaction_terms = poly.get_feature_names_out()
+    #interaction_terms = poly.get_feature_names_out()
 
     # Map coefficients to feature names
-    coefficients_map = dict(zip(interaction_terms, coefficients))
+    #coefficients_map = dict(zip(interaction_terms, coefficients))
 
     # Print coefficients for each feature
-    for feature, coefficient in coefficients_map.items():
-        if(coefficient != 0):
-            print(f"{feature}: {coefficient}")
+    #for feature, coefficient in coefficients_map.items():
+    #    if(coefficient != 0):
+    #        print(f"{feature}: {coefficient}")
 
     print(f"best training parameters: ", regress.get_params())
     print(f"best poly training parameters: ", poly.get_params())
