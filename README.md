@@ -6,7 +6,8 @@ This repository is broken up into different projects each of which is described 
 https://github.com/aflynn0213/FantasyPlayerEvaluation/blob/master/LeagueHistoryLinearWeightsModel/
 
 ## Alex's Twist (Improvement) on SGP
-https://github.com/aflynn0213/FantasyPlayerEvaluation/blob/master/SGPandResearch/
+### Moved to a different repository
+https://github.com/aflynn0213/FantasySgpSystem
 
 ## Projection System
 https://github.com/aflynn0213/FantasyPlayerEvaluation/blob/master/ProjectionSystem/
